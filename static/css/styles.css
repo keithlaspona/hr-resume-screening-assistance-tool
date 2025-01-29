@@ -1,0 +1,258 @@
+/* Sidebar Styling */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #004f4f; /* Adjust the sidebar color */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    color: white;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sidebar-logo {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+.sidebar-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sidebar-btn {
+    background-color: #ffffff;
+    color: #004f4f;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sidebar-btn:hover {
+    background-color: #d8f3f3;
+}
+
+.logout-section {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.logout-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Main content area to avoid sidebar overlap */
+.container {
+    margin-left: 270px;
+    padding: 20px;
+}
+
+/* Header styles */
+.header-container {
+    display: flex;
+    max-width: 870px;
+    align-items: center;
+    position: relative;
+    justify-content: space-between;
+    background-color: #E2A93B;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+}
+
+.logo {
+    max-width: 100px;
+    margin-left: 15px;
+}
+
+h1.tool-title {
+    font-size: 2.3em;
+    margin-top: 0;
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    flex-grow: 1;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Style for the new header image */
+.header-image {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.header-img {
+    width: 100%;
+    max-width: 900px;
+    height: auto;
+    border-radius: 21px;
+    object-fit: cover;
+}
+
+/* Style for the form and submit button */
+.container {
+    max-width: 860px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-group {
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+label {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #6997c2;
+    font-family: 'Roboto', sans-serif;
+}
+
+textarea, input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.submit-btn {
+    display: block;
+    width: 200px;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #111261;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #3f41a1;
+}
+
+/* Style for the results table */
+.results {
+    margin-top: 30px;
+    font-family: 'Roboto', sans-serif;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Roboto', sans-serif;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f4f4f4;
+}
+
+tr.top-match {
+    background-color: #98FB98;
+}
+
+/* Style for displaying PDF */
+.pdf-row {
+    background-color: #f9f9f9;
+}
+
+.pdf-row td {
+    padding: 0;
+}
+
+.pdf-row iframe {
+    border: none;
+}
+
+/* Footer styles */
+footer {
+    color: #555;
+    text-align: center;
+    padding: 10px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    font-size: 10px;
+    font-family: 'Roboto', sans-serif;
+    margin-top: 50px;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* Loading spinner styles */
+.loading-spinner {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+}
+
+.spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #111261;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

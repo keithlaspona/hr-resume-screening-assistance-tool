@@ -1,0 +1,7 @@
+Flask
+PyPDF2
+langchain
+langchain-google-genai
+scikit-learn
+sqlite3
+python-dotenv
