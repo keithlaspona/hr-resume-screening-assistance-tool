@@ -58,9 +58,15 @@ def rank_resumes(job_description, resumes):
 # Function to summarize text using ChatGoogleGenerativeAI
 def summarize_text(text):
     try:
+        google_api_key = os.getenv("google_api_key")
+        if not google_api_key:
+            return "Error: Google API key is missing."
+        
         llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=google_api_key)
+
         prompt = f"Summarize the following pdf resumes: {text[:1500]}"  # Limit text length
         response = llm.invoke(prompt)
+        
         return response.content.strip()
     except Exception as e:
         logging.error(f"Error in summarization: {e}")
