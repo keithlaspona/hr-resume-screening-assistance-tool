@@ -1,14 +1,20 @@
 import os
 import sqlite3
+import logging
 from flask import Flask, render_template, request, session, redirect, url_for
 from PyPDF2 import PdfReader
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "default_fallback_secret")
+
 UPLOAD_FOLDER = 'static/resumes'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -20,18 +26,17 @@ USERNAME = "admin"
 PASSWORD = "admin"
 
 # Set up Google API key for ChatGoogleGenerativeAI
-google_api_key = os.getenv("google_api_key")
+google_api_key = os.getenv("GOOGLE_API_KEY")
 
 # Function to extract text from PDF
 def extract_text_from_pdf(file_path):
     try:
         with open(file_path, 'rb') as file:
             pdf = PdfReader(file)
-            text = ""
-            for page in pdf.pages:
-                text += page.extract_text() or ""
+            text = "".join(page.extract_text() or "" for page in pdf.pages)
         return text.strip()
     except Exception as e:
+        logging.error(f"Error reading PDF: {e}")
         return f"Error reading PDF: {e}"
 
 # Function to rank resumes based on job description
@@ -39,31 +44,26 @@ def rank_resumes(job_description, resumes):
     from sklearn.feature_extraction.text import TfidfVectorizer
     from sklearn.metrics.pairwise import cosine_similarity
 
-    documents = [job_description] + resumes
-    vectorizer = TfidfVectorizer().fit_transform(documents)
-    vectors = vectorizer.toarray()
-    job_description_vector = vectors[0]
-    resume_vectors = vectors[1:]
-    cosine_similarities = cosine_similarity([job_description_vector], resume_vectors).flatten()
-    return cosine_similarities
+    try:
+        documents = [job_description] + resumes
+        vectorizer = TfidfVectorizer().fit_transform(documents)
+        vectors = vectorizer.toarray()
+        job_description_vector = vectors[0]
+        resume_vectors = vectors[1:]
+        return cosine_similarity([job_description_vector], resume_vectors).flatten()
+    except Exception as e:
+        logging.error(f"Error in ranking resumes: {e}")
+        return []
 
 # Function to summarize text using ChatGoogleGenerativeAI
 def summarize_text(text):
     try:
-        # Initialize ChatGoogleGenerativeAI instance
         llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=google_api_key)
-        
-        # Format the prompt for summarization
-        prompt = f"Summarize the following pdf resumes: {text[:1500]}"  # Limit to first 1500 characters for API call
-
-        # Get response from the model
+        prompt = f"Summarize the following pdf resumes: {text[:1500]}"  # Limit text length
         response = llm.invoke(prompt)
-        
-        # Access the content of the response correctly
-        summary = response.content.strip()  # Use .content to get the message content
-        
-        return summary
+        return response.content.strip()
     except Exception as e:
+        logging.error(f"Error in summarization: {e}")
         return f"Error in summarization: {e}"
 
 # Function to store data in SQLite3
@@ -86,9 +86,10 @@ def store_data_in_db(job_description, resumes, scores, summaries):
             INSERT INTO resume_data (job_description, resume_name, resume_text, score, summary)
             VALUES (?, ?, ?, ?, ?) 
             ''', (job_description, f"resume_{i + 1}", resume_text, scores[i], summaries[i]))
+
         conn.commit()
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
+        logging.error(f"Database error: {e}")
     finally:
         conn.close()
 
@@ -96,15 +97,14 @@ def store_data_in_db(job_description, resumes, scores, summaries):
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username")
+        password = request.form.get("password")
 
         if username == USERNAME and password == PASSWORD:
             session["logged_in"] = True
             return redirect(url_for("main"))
         else:
-            error = "Invalid username or password"
-            return render_template("index.html", error=error)
+            return render_template("index.html", error="Invalid username or password")
 
     return render_template("index.html")
 
@@ -112,27 +112,21 @@ def login():
 @app.route("/main", methods=["GET", "POST"])
 def main():
     if not session.get("logged_in"):
-        app.logger.debug("Session not logged in. Redirecting to index.")
-        return redirect(url_for("login"))  # Ensure the user is redirected to the login page if not logged in
+        logging.info("User not logged in. Redirecting to login.")
+        return redirect(url_for("login"))
 
-    app.logger.debug("Session logged in. Rendering main.")
-    results = []
-    top_match = None
+    results, top_match = [], None
 
     if request.method == "POST":
         job_description = request.form.get("job_description", "").strip()
         uploaded_files = request.files.getlist("resumes")
 
         if not job_description:
-            error = "Job description is required."
-            return render_template("main.html", results=[], top_match=None, error=error)
-
+            return render_template("main.html", results=[], top_match=None, error="Job description is required.")
         if not uploaded_files:
-            error = "Please upload at least one resume."
-            return render_template("main.html", results=[], top_match=None, error=error)
+            return render_template("main.html", results=[], top_match=None, error="Please upload at least one resume.")
 
-        resumes = []
-        summaries = []
+        resumes, summaries = [], []
 
         for file in uploaded_files:
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
@@ -148,9 +142,7 @@ def main():
         scores = rank_resumes(job_description, resumes)
         store_data_in_db(job_description, resumes, scores, summaries)
 
-        scores = [round(score, 2) for score in scores]
-
-        results = list(zip([file.filename for file in uploaded_files], scores, summaries))
+        results = list(zip([file.filename for file in uploaded_files], [round(score, 2) for score in scores], summaries))
         results.sort(key=lambda x: x[1], reverse=True)
 
         if results:
@@ -162,15 +154,14 @@ def main():
 @app.route("/logout")
 def logout():
     session.pop("logged_in", None)
-    app.logger.debug("User logged out. Redirecting to index.")
+    logging.info("User logged out. Redirecting to login.")
     return redirect(url_for("login"))
 
 # Root route
 @app.route("/")
 def index():
-    if session.get("logged_in"):
-        return redirect(url_for("main"))
-    return redirect(url_for("login"))
+    return redirect(url_for("main")) if session.get("logged_in") else redirect(url_for("login"))
 
+# Run the app on Render
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
