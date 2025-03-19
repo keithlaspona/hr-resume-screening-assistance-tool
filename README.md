@@ -53,9 +53,16 @@ Follow these instructions to set up and run the HR Resume Screening Assistance T
 
 2. **Access the App**:
 
-    Open your web browser and navigate to **http://127.0.0.1:5000/**.
+   Open your web browser and navigate to **http://127.0.0.1:5000/**.
 
-3. **Credentials**:
+4. **Credentials**:
 
  - Username: **admin**
  - Password: **admin**
+
+### Deployed Application
+   
+   You can access the deployed application at the following link:
+   [HR Resume Screening Assistance Tool](https://hr-resume-screening-assistance-tool.onrender.com/).
+
+
