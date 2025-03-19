@@ -62,7 +62,7 @@ Follow these instructions to set up and run the HR Resume Screening Assistance T
 
 ### Deployed Application
    
-   You can access the deployed application at the following link:
+   You can access the deployed application at the following link: <br>
    [HR Resume Screening Assistance Tool](https://hr-resume-screening-assistance-tool.onrender.com/).
 
 
